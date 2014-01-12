@@ -377,18 +377,21 @@ void ofxFluid::draw(int x, int y, float _width, float _height){
     ofPopStyle();
 }
 
-void ofxFluid::setTextureToBuffer(ofTexture & _tex, ofxSwapBuffer & _buffer){
+void ofxFluid::setTextureToBuffer(ofTexture & _tex, ofxSwapBuffer & _buffer, ofBlendMode blendMode, int alpha){
     ofPushMatrix();
+    ofPushStyle();
     ofScale(scale, scale);
     for(int i = 0; i < 2; i++){
         _buffer[i].begin();
-        ofSetColor(255);
+        ofSetColor(255, alpha);
+        ofEnableBlendMode(blendMode);
         _tex.draw(gridWidth*0.5-_tex.getWidth()*0.5 * scale,
                   gridHeight*0.5-_tex.getHeight()*0.5 * scale, 
                   _tex.getWidth()*scale,
                   _tex.getHeight()*scale);
         _buffer[i].end();
     }
+    ofPopStyle();
     ofPopMatrix();
     
     update();
