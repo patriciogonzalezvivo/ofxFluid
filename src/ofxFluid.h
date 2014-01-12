@@ -11,7 +11,7 @@
  *
  *    - Phil Rideout
  *      http://prideout.net/blog/?p=58
- *  
+ *
  *
  *  Redistribution and use in source and binary forms, with or without
  *  modification, are permitted provided that the following conditions are met:
@@ -36,12 +36,12 @@
  *  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  *  OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- *  ************************************************************************************ 
- * 
+ *  ************************************************************************************
+ *
  *  tex0 -> obstacles
  *
  */
- 
+
 #ifndef OFXFLUID
 #define OFXFLUID
 
@@ -60,33 +60,37 @@ typedef struct  {
 class ofxFluid : public ofxFXObject {
 public:
     ofxFluid();
-    
+
     void allocate(int _width, int _height, float _scale = 0.5);
-    
-    void    setTexture(ofTexture & _tex){setTextureToBuffer(_tex, pingPong); };
-    void    setVelocity(ofTexture & _tex){setTextureToBuffer(_tex, velocityBuffer); };
-    void    setTemperature(ofTexture & _tex){setTextureToBuffer(_tex, temperatureBuffer); };
+
+    void    setTexture(ofTexture & _tex, ofBlendMode blendMode=OF_BLENDMODE_ADD, int alpha=255){setTextureToBuffer(_tex, pingPong, blendMode, alpha); };
+    void    setVelocity(ofTexture & _tex, ofBlendMode blendMode=OF_BLENDMODE_ADD, int alpha=255){setTextureToBuffer(_tex, velocityBuffer, blendMode, alpha); };
+    void    setTemperature(ofTexture & _tex, ofBlendMode blendMode=OF_BLENDMODE_ADD, int alpha=255){setTextureToBuffer(_tex, temperatureBuffer, blendMode, alpha); };
     void    setGravity(ofPoint _force){ gForce = _force; };
-    
+
+    ofxSwapBuffer    getVelBuffer(){ return velocityBuffer;}
+    ofxSwapBuffer    getTempBuffer(){ return temperatureBuffer;}
+    ofxSwapBuffer    getDensityBuffer(){ return pressureBuffer;}
+
     void    addTemporalForce(ofPoint _pos, ofPoint _dir, ofFloatColor _col, float _rad = 1.0f, float _temp = 10.f, float _den = 1.f );
     void    addConstantForce(ofPoint _pos, ofPoint _dir, ofFloatColor _col, float _rad = 1.0f, float _temp = 10.f, float _den = 1.f );
-    
+
     void    update();
     void    draw(int x = 0, int y = 0, float _width = -1, float _height = -1);
-    
+
     float   dissipation;
     float   velocityDissipation;
     float   temperatureDissipation;
     float   pressureDissipation;
-    
+
 private:
-    void    setTextureToBuffer(ofTexture & _tex, ofxSwapBuffer & _buffer);
-    
+    void    setTextureToBuffer(ofTexture & _tex, ofxSwapBuffer & _buffer, ofBlendMode blendMode=OF_BLENDMODE_ADD, int alpha=255);
+
     void    advect(ofxSwapBuffer& _buffer, float _dissipation);
     void    jacobi();
     void    subtractGradient();
     void    computeDivergence();
-    
+
     void    applyImpulse(ofxSwapBuffer& _buffer, ofPoint _force, ofPoint _value, float _radio = 3.f);
     void    applyBuoyancy();
 
@@ -95,28 +99,28 @@ private:
     ofShader computeDivergenceShader;
     ofShader applyImpulseShader;
     ofShader applyBuoyancyShader;
-    
+
     ofxSwapBuffer  velocityBuffer;
     ofxSwapBuffer  temperatureBuffer;
     ofxSwapBuffer  pressureBuffer;
-    
+
     ofFbo   divergenceFbo;
     ofFbo   obstaclesFbo;
-    
+
     vector<punctualForce> constantForces;
     vector<punctualForce> temporalForces;
     ofPoint gForce;
-    
+
     float   smokeBuoyancy;
     float   smokeWeight;
     float   gradientScale;
     float   ambientTemperature;
-    
+
     float   gridWidth,gridHeight;
     float   timeStep;
     float   cellSize;
     float   scale;
-    
+
     int     numJacobiIterations;
 };
 #endif
