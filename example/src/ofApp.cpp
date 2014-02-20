@@ -23,6 +23,7 @@ void testApp::setup(){
     //  Set obstacle
     //
     fluid.begin();
+    ofSetColor(0,0);
     ofSetColor(255);
     ofCircle(width*0.5, height*0.35, 40);
     fluid.end();
@@ -56,7 +57,7 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
-    ofBackground(0);
+    ofBackground(255,0,0);
     
     fluid.draw();
 }

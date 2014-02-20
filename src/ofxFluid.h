@@ -88,7 +88,7 @@ private:
     void    subtractGradient();
     void    computeDivergence();
     
-    void    applyImpulse(ofxSwapBuffer& _buffer, ofBaseHasTexture &_baseTex, float _pct);
+    void    applyImpulse(ofxSwapBuffer& _buffer, ofBaseHasTexture &_baseTex, float _pct = 1.0, bool _isVel = false);
     void    applyImpulse(ofxSwapBuffer& _buffer, ofPoint _force, ofPoint _value, float _radio = 3.f);
     void    applyBuoyancy();
 

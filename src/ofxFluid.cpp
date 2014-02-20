@@ -42,7 +42,7 @@
 
 ofxFluid::ofxFluid(){
     passes = 1;
-    internalFormat = GL_RGB;
+    internalFormat = GL_RGBA;
     
     // ADVECT
     fragmentShader = STRINGIFY(uniform sampler2DRect tex0;         // Real obstacles
@@ -192,12 +192,19 @@ ofxFluid::ofxFluid(){
     string fragmentApplyTextureShader = STRINGIFY(uniform sampler2DRect backbuffer;
                                                   uniform sampler2DRect tex1;
                                                   uniform float   pct;
+                                                  uniform int   isVel;
                                                   
                                                   void main(){
                                                       vec2 st = gl_TexCoord[0].st;
                                                       vec4 prevFrame = texture2DRect(backbuffer, st);
                                                       vec4 newFrame = texture2DRect(tex1, st);
-                                                      gl_FragColor = mix(prevFrame,newFrame,pct);
+                                                      
+                                                      if (isVel!=0){
+                                                          newFrame -=0.5;
+                                                          newFrame *=2.0;
+                                                      }
+                                                    
+                                                      gl_FragColor = prevFrame+newFrame*pct;//mix(prevFrame,newFrame,pct);
                                                   }
                                                   );
     applyTextureShader.unload();
@@ -279,7 +286,7 @@ void ofxFluid::allocate(int _width, int _height, float _scale){
     gridWidth = width * scale;
     gridHeight = height * scale;
     
-    pingPong.allocate(gridWidth,gridHeight,GL_RGB32F);
+    pingPong.allocate(gridWidth,gridHeight,GL_RGBA);
     dissipation = 0.999f;
     velocityBuffer.allocate(gridWidth,gridHeight,GL_RGB32F);
     velocityDissipation = 0.9f;
@@ -297,9 +304,9 @@ void ofxFluid::allocate(int _width, int _height, float _scale){
     ofClear( ambientTemperature );
     temperatureBuffer.src->end();
     
-    colorAddFbo.allocate(gridWidth,gridHeight,GL_RGB32F);
+    colorAddFbo.allocate(gridWidth,gridHeight,GL_RGBA);
     colorAddFbo.begin();
-    ofClear(0);
+    ofClear(0,0);
     colorAddFbo.end();
     
     velocityAddFbo.allocate(gridWidth,gridHeight,GL_RGB32F);
@@ -316,7 +323,7 @@ void ofxFluid::setUseObstacles(bool _do){
     
     if(!bObstacles){
         obstaclesFbo.begin();
-        ofClear(0);
+        ofClear(0,0);
         obstaclesFbo.end();
     }
 }
@@ -349,6 +356,7 @@ void ofxFluid::addConstantForce(ofPoint _pos, ofPoint _vel, ofFloatColor _col, f
 
 void ofxFluid::update(){
     
+    
     //  Scale Obstacles
     //
     if(bObstacles && bUpdate){
@@ -374,23 +382,24 @@ void ofxFluid::update(){
     applyBuoyancy();
     velocityBuffer.swap();
     
+    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+    ofDisableBlendMode();
     //  Update temperature, Color (PingPong) and Velocity buffers
     //
     if(colorAddPct>0.0||velocityAddPct>0.0){
         applyImpulse(temperatureBuffer, colorAddFbo, colorAddPct);
-        applyImpulse(temperatureBuffer, velocityAddFbo, velocityAddPct);
     }
     
     if(colorAddPct>0.0){
         applyImpulse(pingPong, colorAddFbo, colorAddPct);
         colorAddFbo.begin();
-        ofClear(0);
+        ofClear(0,0);
         colorAddFbo.end();
         colorAddPct = 0.0;
     }
     
     if(velocityAddPct>0.0){
-        applyImpulse(velocityBuffer, velocityAddFbo, velocityAddPct);
+        applyImpulse(velocityBuffer, velocityAddFbo, velocityAddPct, true);
         velocityAddFbo.begin();
         ofClear(0);
         velocityAddFbo.end();
@@ -398,6 +407,9 @@ void ofxFluid::update(){
     }
     
     if ( temporalForces.size() != 0){
+        ofEnableBlendMode(OF_BLENDMODE_ADD);
+        ofDisableBlendMode();
+        
         for(int i = 0; i < temporalForces.size(); i++){
             applyImpulse(temperatureBuffer, temporalForces[i].pos, ofVec3f(temporalForces[i].temp,temporalForces[i].temp,temporalForces[i].temp), temporalForces[i].rad);
             if (temporalForces[i].color.length() != 0)
@@ -408,7 +420,9 @@ void ofxFluid::update(){
         temporalForces.clear();
     }
     
-    if ( constantForces.size() != 0)
+    if ( constantForces.size() != 0){
+        ofEnableBlendMode(OF_BLENDMODE_ADD);
+        ofDisableBlendMode();
         for(int i = 0; i < constantForces.size(); i++){
             applyImpulse(temperatureBuffer, constantForces[i].pos, ofVec3f(constantForces[i].temp,constantForces[i].temp,constantForces[i].temp), constantForces[i].rad);
             if (constantForces[i].color.length() != 0)
@@ -416,6 +430,7 @@ void ofxFluid::update(){
             if (constantForces[i].vel.length() != 0)
                 applyImpulse(velocityBuffer , constantForces[i].pos, constantForces[i].vel, constantForces[i].rad);
         }
+    }
     
     //  Compute
     //
@@ -438,16 +453,18 @@ void ofxFluid::draw(int x, int y, float _width, float _height){
     if (_height == -1) _height = height;
     
     ofPushStyle();
+    ofSetColor(255);
+    
+    ofEnableAlphaBlending();
     if(bObstacles){
-        ofEnableBlendMode(OF_BLENDMODE_ADD);
-        ofDisableBlendMode();
-        glEnable(GL_BLEND);
-        ofSetColor(255);
+//        glEnable(GL_BLEND);
+        textures[0].draw(x,y,_width,_height);
+        
     }
+    
     pingPong.src->draw(x,y,_width,_height);
     if(bObstacles){
-        textures[0].draw(x,y,_width,_height);
-        glDisable(GL_BLEND);
+//        glDisable(GL_BLEND);
     }
     ofPopStyle();
 }
@@ -465,7 +482,7 @@ void ofxFluid::drawVelocity(int x, int y, float _width, float _height){
 void ofxFluid::addColor(ofBaseHasTexture &_tex, float _pct){
     ofPushStyle();
     colorAddFbo.begin();
-    ofClear(0);
+    ofClear(0,0);
     ofSetColor(255, 255);
     _tex.getTextureReference().draw(0,0,gridWidth,gridHeight);
     colorAddFbo.end();
@@ -544,13 +561,14 @@ void ofxFluid::computeDivergence(){
     divergenceFbo.end();
 }
 
-void ofxFluid::applyImpulse(ofxSwapBuffer& _buffer, ofBaseHasTexture &_baseTex, float _pct){
+void ofxFluid::applyImpulse(ofxSwapBuffer& _buffer, ofBaseHasTexture &_baseTex, float _pct, bool _isVel){
     glEnable(GL_BLEND);
     _buffer.dst->begin();
     applyTextureShader.begin();
     applyTextureShader.setUniformTexture("backbuffer", *(_buffer.src), 0);
     applyTextureShader.setUniformTexture("tex1", _baseTex.getTextureReference(), 1);
     applyTextureShader.setUniform1f("pct", _pct);
+    applyTextureShader.setUniform1i("isVel", (_isVel)?1:0);
     renderFrame(gridWidth,gridHeight);
     applyTextureShader.end();
     _buffer.dst->end();
