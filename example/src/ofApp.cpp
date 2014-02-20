@@ -26,11 +26,12 @@ void testApp::setup(){
     ofSetColor(255);
     ofCircle(width*0.5, height*0.35, 40);
     fluid.end();
+//    fluid.setUseObstacles(false);
     
     // Adding constant forces
     //
     fluid.addConstantForce(ofPoint(width*0.5,height*0.85), ofPoint(0,-2), ofFloatColor(0.5,0.1,0.0), 10.f);
-    
+
     ofSetWindowShape(width, height);
 }
 

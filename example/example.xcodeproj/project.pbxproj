@@ -154,8 +154,8 @@
 		331b2291d2642ca1a93d922a375db468 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				4a668b455165e1f25b6e3238051a17ae /* ofxFluid.cpp */,
 				e025da9850e317b28a4dbe63612006b0 /* ofxFluid.h */,
+				4a668b455165e1f25b6e3238051a17ae /* ofxFluid.cpp */,
 			);
 			name = src;
 			sourceTree = "<group>";

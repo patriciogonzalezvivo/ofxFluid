@@ -61,18 +61,21 @@ class ofxFluid : public ofxFXObject {
 public:
     ofxFluid();
     
-    void allocate(int _width, int _height, float _scale = 0.5);
+    void    allocate(int _width, int _height, float _scale = 0.5);
     
-    void    setTexture(ofTexture & _tex){setTextureToBuffer(_tex, pingPong); };
-    void    setVelocity(ofTexture & _tex){setTextureToBuffer(_tex, velocityBuffer); };
-    void    setTemperature(ofTexture & _tex){setTextureToBuffer(_tex, temperatureBuffer); };
+    void    setUseObstacles(bool _do);
     void    setGravity(ofPoint _force){ gForce = _force; };
     
+    void    addColor(ofBaseHasTexture &_tex, float _pct = 1.0);
+    void    addVelocity(ofBaseHasTexture &_tex, float _pct = 1.0);
     void    addTemporalForce(ofPoint _pos, ofPoint _dir, ofFloatColor _col, float _rad = 1.0f, float _temp = 10.f, float _den = 1.f );
     void    addConstantForce(ofPoint _pos, ofPoint _dir, ofFloatColor _col, float _rad = 1.0f, float _temp = 10.f, float _den = 1.f );
     
     void    update();
+    
     void    draw(int x = 0, int y = 0, float _width = -1, float _height = -1);
+    void    drawVelocity(int x = 0, int y = 0, float _width = -1, float _height = -1);
+
     
     float   dissipation;
     float   velocityDissipation;
@@ -80,13 +83,12 @@ public:
     float   pressureDissipation;
     
 private:
-    void    setTextureToBuffer(ofTexture & _tex, ofxSwapBuffer & _buffer);
-    
     void    advect(ofxSwapBuffer& _buffer, float _dissipation);
     void    jacobi();
     void    subtractGradient();
     void    computeDivergence();
     
+    void    applyImpulse(ofxSwapBuffer& _buffer, ofBaseHasTexture &_baseTex, float _pct);
     void    applyImpulse(ofxSwapBuffer& _buffer, ofPoint _force, ofPoint _value, float _radio = 3.f);
     void    applyBuoyancy();
 
@@ -94,6 +96,7 @@ private:
     ofShader subtractGradientShader;
     ofShader computeDivergenceShader;
     ofShader applyImpulseShader;
+    ofShader applyTextureShader;
     ofShader applyBuoyancyShader;
     
     ofxSwapBuffer  velocityBuffer;
@@ -118,5 +121,9 @@ private:
     float   scale;
     
     int     numJacobiIterations;
+    bool    bObstacles;
+    
+    ofFbo   colorAddFbo, velocityAddFbo;
+    float   colorAddPct, velocityAddPct;
 };
 #endif
