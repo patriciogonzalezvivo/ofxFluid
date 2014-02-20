@@ -278,7 +278,7 @@ ofxFluid::ofxFluid(){
     gForce.set(0,-0.98);
 }
 
-void ofxFluid::allocate(int _width, int _height, float _scale){
+void ofxFluid::allocate(int _width, int _height, float _scale, bool _HD){
     width = _width; 
     height = _height; 
     scale = _scale;
@@ -286,7 +286,7 @@ void ofxFluid::allocate(int _width, int _height, float _scale){
     gridWidth = width * scale;
     gridHeight = height * scale;
     
-    pingPong.allocate(gridWidth,gridHeight,GL_RGBA);
+    pingPong.allocate(gridWidth,gridHeight,(_HD)?GL_RGBA32F:GL_RGBA);
     dissipation = 0.999f;
     velocityBuffer.allocate(gridWidth,gridHeight,GL_RGB32F);
     velocityDissipation = 0.9f;
@@ -295,7 +295,7 @@ void ofxFluid::allocate(int _width, int _height, float _scale){
     pressureBuffer.allocate(gridWidth,gridHeight,GL_RGB32F);
     pressureDissipation = 0.9f;
     
-    initFbo(obstaclesFbo, gridWidth, gridHeight, GL_RGB);
+    initFbo(obstaclesFbo, gridWidth, gridHeight, GL_RGBA);
     initFbo(divergenceFbo, gridWidth, gridHeight, GL_RGB16F);
     
     compileCode();
@@ -304,7 +304,7 @@ void ofxFluid::allocate(int _width, int _height, float _scale){
     ofClear( ambientTemperature );
     temperatureBuffer.src->end();
     
-    colorAddFbo.allocate(gridWidth,gridHeight,GL_RGBA);
+    colorAddFbo.allocate(gridWidth,gridHeight,(_HD)?GL_RGBA32F:GL_RGBA);
     colorAddFbo.begin();
     ofClear(0,0);
     colorAddFbo.end();
@@ -457,15 +457,11 @@ void ofxFluid::draw(int x, int y, float _width, float _height){
     
     ofEnableAlphaBlending();
     if(bObstacles){
-//        glEnable(GL_BLEND);
         textures[0].draw(x,y,_width,_height);
-        
     }
     
     pingPong.src->draw(x,y,_width,_height);
-    if(bObstacles){
-//        glDisable(GL_BLEND);
-    }
+
     ofPopStyle();
 }
 
@@ -544,8 +540,6 @@ void ofxFluid::subtractGradient(){
     
     subtractGradientShader.end();
     velocityBuffer.dst->end();
-    
-    ofDisableBlendMode();
 }
 
 void ofxFluid::computeDivergence(){

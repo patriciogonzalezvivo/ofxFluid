@@ -61,7 +61,7 @@ class ofxFluid : public ofxFXObject {
 public:
     ofxFluid();
     
-    void    allocate(int _width, int _height, float _scale = 0.5);
+    void    allocate(int _width, int _height, float _scale = 0.5, bool _hd = true);
     
     void    setUseObstacles(bool _do);
     void    setGravity(ofPoint _force){ gForce = _force; };
@@ -125,5 +125,7 @@ private:
     
     ofFbo   colorAddFbo, velocityAddFbo;
     float   colorAddPct, velocityAddPct;
+    
+    int     colorGlFormat;
 };
 #endif

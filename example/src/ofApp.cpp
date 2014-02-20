@@ -27,7 +27,7 @@ void testApp::setup(){
     ofSetColor(255);
     ofCircle(width*0.5, height*0.35, 40);
     fluid.end();
-//    fluid.setUseObstacles(false);
+    fluid.setUseObstacles(false);
     
     // Adding constant forces
     //
@@ -57,7 +57,7 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
-    ofBackground(255,0,0);
+    ofBackgroundGradient(ofColor::gray, ofColor::black, OF_GRADIENT_LINEAR);
     
     fluid.draw();
 }
