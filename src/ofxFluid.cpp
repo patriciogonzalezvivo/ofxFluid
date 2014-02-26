@@ -202,6 +202,7 @@ ofxFluid::ofxFluid(){
                                                       if (isVel!=0){
                                                           newFrame -=0.5;
                                                           newFrame *=2.0;
+                                                          newFrame.b = 0.5;
                                                       }
                                                     
                                                       gl_FragColor = prevFrame+newFrame*pct;//mix(prevFrame,newFrame,pct);
@@ -354,6 +355,15 @@ void ofxFluid::addConstantForce(ofPoint _pos, ofPoint _vel, ofFloatColor _col, f
     constantForces.push_back(f);
 }
 
+void ofxFluid::setObstacles(ofBaseHasTexture &_tex){
+    ofPushStyle();
+    obstaclesFbo.begin();
+    ofSetColor(255, 255);
+    _tex.getTextureReference().draw(0,0,obstaclesFbo.getWidth(),obstaclesFbo.getHeight());
+    obstaclesFbo.end();
+    ofPopStyle();
+}
+
 void ofxFluid::update(){
     
     
@@ -388,6 +398,7 @@ void ofxFluid::update(){
     //
     if(colorAddPct>0.0||velocityAddPct>0.0){
         applyImpulse(temperatureBuffer, colorAddFbo, colorAddPct);
+        applyImpulse(velocityBuffer, velocityAddFbo, velocityAddPct, true);
     }
     
     if(colorAddPct>0.0){
