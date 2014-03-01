@@ -364,6 +364,60 @@ void ofxFluid::setObstacles(ofBaseHasTexture &_tex){
     ofPopStyle();
 }
 
+void ofxFluid::addColor(ofBaseHasTexture &_tex, float _pct){
+    addColor(_tex.getTextureReference(),_pct);
+}
+
+void ofxFluid::addColor(ofTexture &_tex, float _pct){
+    ofPushStyle();
+    colorAddFbo.begin();
+    ofClear(0,0);
+    ofSetColor(255);
+    _tex.draw(0,0,gridWidth,gridHeight);
+    colorAddFbo.end();
+    ofPopStyle();
+    
+    colorAddPct = _pct;
+}
+
+void ofxFluid::addVelocity(ofTexture &_tex, float _pct){
+    ofPushStyle();
+    velocityAddFbo.begin();
+    ofClear(0);
+    ofSetColor(255, 255);
+    _tex.draw(0,0,gridWidth,gridHeight);
+    velocityAddFbo.end();
+    ofPopStyle();
+    
+    velocityAddPct = _pct;
+}
+
+void ofxFluid::addVelocity(ofBaseHasTexture &_tex, float _pct){
+    addVelocity(_tex.getTextureReference(),_pct);
+}
+
+void ofxFluid::clear(){
+    pingPong.clear();
+    velocityBuffer.clear();
+    temperatureBuffer.clear();
+    pressureBuffer.clear();
+    obstaclesFbo.begin();
+    ofClear(0);
+    obstaclesFbo.end();
+    divergenceFbo.begin();
+    ofClear(0);
+    divergenceFbo.end();
+    temperatureBuffer.src->begin();
+    ofClear(ambientTemperature);
+    temperatureBuffer.src->end();
+    colorAddFbo.begin();
+    ofClear(0,0);
+    colorAddFbo.end();
+    velocityAddFbo.begin();
+    ofClear(0);
+    velocityAddFbo.end();
+}
+
 void ofxFluid::update(){
     
     
@@ -466,10 +520,10 @@ void ofxFluid::draw(int x, int y, float _width, float _height){
     ofPushStyle();
     ofSetColor(255);
     
-    ofEnableAlphaBlending();
-    if(bObstacles){
-        textures[0].draw(x,y,_width,_height);
-    }
+//    ofEnableAlphaBlending();
+//    if(bObstacles){
+//        textures[0].draw(x,y,_width,_height);
+//    }
     
     pingPong.src->draw(x,y,_width,_height);
 
@@ -486,29 +540,6 @@ void ofxFluid::drawVelocity(int x, int y, float _width, float _height){
     ofPopStyle();
 }
 
-void ofxFluid::addColor(ofBaseHasTexture &_tex, float _pct){
-    ofPushStyle();
-    colorAddFbo.begin();
-    ofClear(0,0);
-    ofSetColor(255, 255);
-    _tex.getTextureReference().draw(0,0,gridWidth,gridHeight);
-    colorAddFbo.end();
-    ofPopStyle();
-    
-    colorAddPct = _pct;
-}
-
-void ofxFluid::addVelocity(ofBaseHasTexture &_tex, float _pct){
-    ofPushStyle();
-    velocityAddFbo.begin();
-    ofClear(0);
-    ofSetColor(255, 255);
-    _tex.getTextureReference().draw(0,0,gridWidth,gridHeight);
-    velocityAddFbo.end();
-    ofPopStyle();
-    
-    velocityAddPct = _pct;
-}
 
 void ofxFluid::advect(ofxSwapBuffer& _buffer, float _dissipation){
     _buffer.dst->begin();

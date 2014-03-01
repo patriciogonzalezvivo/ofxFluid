@@ -67,13 +67,16 @@ public:
     void    setUseObstacles(bool _do);
     void    setObstacles(ofBaseHasTexture &_tex);
     
+    void    addColor(ofTexture &_tex, float _pct = 1.0);
     void    addColor(ofBaseHasTexture &_tex, float _pct = 1.0);
+    void    addVelocity(ofTexture &_tex, float _pct = 1.0);
     void    addVelocity(ofBaseHasTexture &_tex, float _pct = 1.0);
     void    addTemporalForce(ofPoint _pos, ofPoint _dir, ofFloatColor _col, float _rad = 1.0f, float _temp = 10.f, float _den = 1.f );
     void    addConstantForce(ofPoint _pos, ofPoint _dir, ofFloatColor _col, float _rad = 1.0f, float _temp = 10.f, float _den = 1.f );
     
     virtual ofTexture & getTextureReference() { return pingPong.src->getTextureReference(); };
     
+    void    clear();
     void    update();
     
     void    draw(int x = 0, int y = 0, float _width = -1, float _height = -1);
