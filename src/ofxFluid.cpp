@@ -396,7 +396,7 @@ void ofxFluid::addVelocity(ofBaseHasTexture &_tex, float _pct){
     addVelocity(_tex.getTextureReference(),_pct);
 }
 
-void ofxFluid::clear(){
+void ofxFluid::clear(float _alpha){
     pingPong.clear();
     velocityBuffer.clear();
     temperatureBuffer.clear();
@@ -411,7 +411,7 @@ void ofxFluid::clear(){
     ofClear(ambientTemperature);
     temperatureBuffer.src->end();
     colorAddFbo.begin();
-    ofClear(0,0);
+    ofClear(0,_alpha*255);
     colorAddFbo.end();
     velocityAddFbo.begin();
     ofClear(0);
@@ -419,7 +419,7 @@ void ofxFluid::clear(){
 }
 
 void ofxFluid::update(){
-    
+    ofDisableAlphaBlending();
     
     //  Scale Obstacles
     //

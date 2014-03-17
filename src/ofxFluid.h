@@ -76,7 +76,7 @@ public:
     
     virtual ofTexture & getTextureReference() { return pingPong.src->getTextureReference(); };
     
-    void    clear();
+    void    clear(float _alpha = 1.0);
     void    update();
     
     void    draw(int x = 0, int y = 0, float _width = -1, float _height = -1);
