@@ -359,13 +359,13 @@ void ofxFluid::setObstacles(ofBaseHasTexture &_tex){
     ofPushStyle();
     obstaclesFbo.begin();
     ofSetColor(255, 255);
-    _tex.getTextureReference().draw(0,0,obstaclesFbo.getWidth(),obstaclesFbo.getHeight());
+    _tex.getTexture().draw(0,0,obstaclesFbo.getWidth(),obstaclesFbo.getHeight());
     obstaclesFbo.end();
     ofPopStyle();
 }
 
 void ofxFluid::addColor(ofBaseHasTexture &_tex, float _pct){
-    addColor(_tex.getTextureReference(),_pct);
+    addColor(_tex.getTexture(),_pct);
 }
 
 void ofxFluid::addColor(ofTexture &_tex, float _pct){
@@ -392,8 +392,13 @@ void ofxFluid::addVelocity(ofTexture &_tex, float _pct){
     velocityAddPct = _pct;
 }
 
+const ofTexture & ofxFluid::getTexture() const {
+    return getTexture();
+};
+
+
 void ofxFluid::addVelocity(ofBaseHasTexture &_tex, float _pct){
-    addVelocity(_tex.getTextureReference(),_pct);
+    addVelocity(_tex.getTexture(),_pct);
 }
 
 void ofxFluid::clear(float _alpha){
@@ -602,7 +607,7 @@ void ofxFluid::applyImpulse(ofxSwapBuffer& _buffer, ofBaseHasTexture &_baseTex, 
     _buffer.dst->begin();
     applyTextureShader.begin();
     applyTextureShader.setUniformTexture("backbuffer", *(_buffer.src), 0);
-    applyTextureShader.setUniformTexture("tex1", _baseTex.getTextureReference(), 1);
+    applyTextureShader.setUniformTexture("tex1", _baseTex.getTexture(), 1);
     applyTextureShader.setUniform1f("pct", _pct);
     applyTextureShader.setUniform1i("isVel", (_isVel)?1:0);
     renderFrame(gridWidth,gridHeight);
