@@ -74,7 +74,12 @@ public:
     void    addTemporalForce(ofPoint _pos, ofPoint _dir, ofFloatColor _col, float _rad = 1.0f, float _temp = 10.f, float _den = 1.f );
     void    addConstantForce(ofPoint _pos, ofPoint _dir, ofFloatColor _col, float _rad = 1.0f, float _temp = 10.f, float _den = 1.f );
     
-    virtual ofTexture & getTextureReference() { return pingPong.src->getTextureReference(); };
+    virtual ofTexture & getTexture() {
+        return pingPong.src->getTextureReference();
+    };
+    
+    //ofTexture & getTexture();
+    const ofTexture & getTexture() const;
     
     void    clear(float _alpha = 1.0);
     void    update();
