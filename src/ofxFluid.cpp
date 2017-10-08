@@ -297,7 +297,7 @@ void ofxFluid::allocate(int _width, int _height, float _scale, bool _HD){
     pressureDissipation = 0.9f;
     
     initFbo(obstaclesFbo, gridWidth, gridHeight, GL_RGBA);
-    initFbo(divergenceFbo, gridWidth, gridHeight, GL_RGB16F);
+    initFbo(divergenceFbo, gridWidth, gridHeight, GL_RGB32F);
     
     compileCode();
     
